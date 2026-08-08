@@ -1,0 +1,55 @@
+stages:
+  extract_features:
+    cmd: python -m src.extract_features
+    deps:
+      - src/extract_features.py
+      - src/config.py
+    outs:
+      - data/processed/daily_features.parquet
+      - data/processed/monthly_expiries.parquet
+    desc: >
+      Reads NSE_DB_PATH (nse.db, not tracked by DVC - see README "Dataset
+      Generation") and writes the versioned feature snapshot that every
+      downstream stage depends on.
+
+  train:
+    cmd: python -m src.train
+    deps:
+      - src/train.py
+      - src/folds.py
+      - src/garch.py
+      - src/models.py
+      - src/utils.py
+      - src/config.py
+      - data/processed/daily_features.parquet
+      - data/processed/monthly_expiries.parquet
+    outs:
+      - models/cv_metrics.json
+      - models/cv_metrics.csv
+    metrics:
+      - models/best_config.json
+    desc: >
+      Walk-forward CV across 4 models x 2 feature variants, logged to
+      MLflow. Writes the winning config for fit_final.py. Does not fit
+      anything on the full dataset and does not touch the model registry.
+
+  fit_final:
+    cmd: python -m src.fit_final
+    deps:
+      - src/fit_final.py
+      - src/promote.py
+      - src/garch.py
+      - src/models.py
+      - src/config.py
+      - models/best_config.json
+      - data/processed/daily_features.parquet
+    outs:
+      - models/model.pkl
+      - models/model_meta.json
+    desc: >
+      Applies the promotion gate; if passed, refits the winning config on
+      all historical data and registers + promotes it in MLflow. If the
+      gate fails, this stage exits non-zero and produces no artifacts.
+      models/model.pkl is DVC-tracked (default cache: true) precisely so
+      that `dvc pull` in CI/CD can fetch the promoted artifact without
+      retraining - see .github/workflows/ci.yml.

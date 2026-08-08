@@ -1,0 +1,110 @@
+schema: '2.0'
+stages:
+  extract_features:
+    cmd: python -m src.extract_features
+    deps:
+    - path: src/config.py
+      hash: md5
+      md5: ceb6d77c29355c14b10176843969487a
+      size: 6241
+    - path: src/extract_features.py
+      hash: md5
+      md5: aabc0af477b91bd06eed5d0ecfec7038
+      size: 19317
+    outs:
+    - path: data/processed/daily_features.parquet
+      hash: md5
+      md5: 50dca9e0911f2f22fabaa535b6acb4ee
+      size: 721828
+    - path: data/processed/monthly_expiries.parquet
+      hash: md5
+      md5: 66e74b5b65ff81e10cc436bc69d49d5b
+      size: 2436
+  train:
+    cmd: python -m src.train
+    deps:
+    - path: data/processed/daily_features.parquet
+      hash: md5
+      md5: 50dca9e0911f2f22fabaa535b6acb4ee
+      size: 721828
+    - path: data/processed/monthly_expiries.parquet
+      hash: md5
+      md5: 66e74b5b65ff81e10cc436bc69d49d5b
+      size: 2436
+    - path: src/config.py
+      hash: md5
+      md5: ceb6d77c29355c14b10176843969487a
+      size: 6241
+    - path: src/folds.py
+      hash: md5
+      md5: 793d94c80615e9a43c0ad7b0962b8b8d
+      size: 2423
+    - path: src/garch.py
+      hash: md5
+      md5: d85cfd2459803bbe67b234671697bfe3
+      size: 3132
+    - path: src/models.py
+      hash: md5
+      md5: 0acc81c5eef603341658bbe4be4d65f6
+      size: 815
+    - path: src/train.py
+      hash: md5
+      md5: fba8a40bebe26c235e7f64cabee68e54
+      size: 8406
+    - path: src/utils.py
+      hash: md5
+      md5: 8aeaf90a91ac7411fdbf662251732753
+      size: 2052
+    outs:
+    - path: models/best_config.json
+      hash: md5
+      md5: 7d02b104e38771777c5dc04a4605f17d
+      size: 1322
+    - path: models/cv_metrics.csv
+      hash: md5
+      md5: 8e9dbe38cc9187d83416225be9f89268
+      size: 851
+    - path: models/cv_metrics.json
+      hash: md5
+      md5: cea93e6829138504f35f0a6ea9da8efc
+      size: 1771
+  fit_final:
+    cmd: python -m src.fit_final
+    deps:
+    - path: data/processed/daily_features.parquet
+      hash: md5
+      md5: 50dca9e0911f2f22fabaa535b6acb4ee
+      size: 721828
+    - path: models/best_config.json
+      hash: md5
+      md5: 1fb525b130990378c4a53d38b85a0e7f
+      size: 1320
+    - path: src/config.py
+      hash: md5
+      md5: 25fa13e5501df4c383b63f930e8a5981
+      size: 6238
+    - path: src/fit_final.py
+      hash: md5
+      md5: 8fd86eaf23cf37556525101843aa6784
+      size: 5406
+    - path: src/garch.py
+      hash: md5
+      md5: d85cfd2459803bbe67b234671697bfe3
+      size: 3132
+    - path: src/models.py
+      hash: md5
+      md5: 0acc81c5eef603341658bbe4be4d65f6
+      size: 815
+    - path: src/promote.py
+      hash: md5
+      md5: b7f314df71b7bb8150f2b95a2362f27c
+      size: 3232
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: 5afba5ab83df8cb95355e37cbe18dc6f
+      size: 490328
+    - path: models/model_meta.json
+      hash: md5
+      md5: 2ba76d07ef61e9ce11bd2b79c4072b0c
+      size: 1419

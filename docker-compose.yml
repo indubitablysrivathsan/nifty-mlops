@@ -1,0 +1,17 @@
+services:
+  nifty-api:
+    container_name: nifty-mlops-api
+    image: nifty-fwd-ret-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      PYTHONUNBUFFERED: "1"
+    labels:
+      project: "nifty-mlops"
+      service: "prediction-api"
+      version: "1.0.0"
+      description: "NIFTY derivatives-based forward return prediction API"

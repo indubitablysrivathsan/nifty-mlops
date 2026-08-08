@@ -1,0 +1,107 @@
+name: MLOps CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Unit tests
+        run: pytest tests/ -v
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Configure DVC remote
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          dvc remote modify origin --local access_key_id "$DAGSHUB_TOKEN"
+          dvc remote modify origin --local secret_access_key "$DAGSHUB_TOKEN"
+
+      - name: Check for promoted model change
+        id: model_change
+        run: |
+          if git diff --quiet HEAD^ HEAD -- dvc.lock; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No DVC artifact changes. Skipping deployment."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "DVC artifact changed. Deployment required."
+          fi
+
+      - name: Pull promoted model
+        if: steps.model_change.outputs.changed == 'true'
+        run: dvc pull models/model.pkl models/model_meta.json data/processed/daily_features.parquet
+
+      - name: Verify model artifacts
+        if: steps.model_change.outputs.changed == 'true'
+        run: |
+          test -f models/model.pkl
+          test -f models/model_meta.json
+
+      - name: Build and start service
+        if: steps.model_change.outputs.changed == 'true'
+        run: docker compose up -d --build
+
+      - name: Smoke-test container
+        if: steps.model_change.outputs.changed == 'true'
+        run: |
+          for i in $(seq 1 15); do
+            if curl -fs http://localhost:8000/health; then break; fi
+            sleep 2
+          done
+          curl -fs http://localhost:8000/health
+
+      - name: Show container logs
+        if: always() && steps.model_change.outputs.changed == 'true'
+        run: docker compose logs
+
+      - name: Stop service
+        if: always() && steps.model_change.outputs.changed == 'true'
+        run: docker compose down
+
+      - name: Upload promoted model to Hugging Face
+        if: steps.model_change.outputs.changed == 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_REPO_ID: ${{ vars.HF_REPO_ID }}
+        run: |
+          git clone https://user:${HF_TOKEN}@huggingface.co/${HF_REPO_ID} hf-model
+          cp models/model.pkl hf-model/
+          cp models/model_meta.json hf-model/
+          cd hf-model
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Update model ${{ github.sha }}" || echo "No changes to deploy"
+          git push origin main

@@ -1,0 +1,40 @@
+# Environment
+.env
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Raw data — never committed
+data/raw/
+
+# DVC-managed outputs
+data/processed/daily_features.parquet
+data/processed/monthly_expiries.parquet
+models/model.pkl
+models/model_meta.json
+models/cv_metrics.json
+models/cv_metrics.csv
+models/best_config.json
+
+# MLflow local tracking
+mlruns/
+mlartifacts/
+mlflow.db
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Tests / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# CatBoost
+catboost_info/
