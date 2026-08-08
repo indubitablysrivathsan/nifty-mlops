@@ -14,6 +14,37 @@ directly from NSE's public archives into a local DuckDB database
 
 ---
 
+## Project Features
+
+### FastAPI Prediction API
+
+![FastAPI Prediction API](docs/images/fast_api.png)
+
+### DagsHub Repository
+
+![DagsHub Repository](docs/images/dh_repo.png)
+
+### MLflow Experiments
+
+![MLflow Experiments](docs/images/mlflow_exp.png)
+
+### Hugging Face Model Registry
+
+![Registered Model](docs/images/hf.png)
+
+### DVC Data Tracking
+
+![DVC Tracking](docs/images/dh_architecture.png)
+
+### GitHub Actions CI/CD
+
+![GitHub Actions](docs/images/github_actions.png)
+
+The complete pipeline is versioned, tracked, and reproducible across DVC,
+DagsHub/MLflow, and Hugging Face.
+
+---
+
 ## Architecture
 
 ```
@@ -254,9 +285,7 @@ dvc repro
 
 Inspect experiments with the MLflow UI:
 
-```bash
-mlflow ui --backend-store-uri sqlite:///./mlflow.db
-```
+**MLflow UI** : https://dagshub.com/indubitablysrivathsan/nifty-mlops.mlflow
 
 ---
 
@@ -376,7 +405,7 @@ See `.env.example` for the full list. Key ones:
 | Variable | Purpose |
 |---|---|
 | `NSE_DB_PATH` | Path to candL's `nse.db` — only used by `extract_features.py` |
-| `MLFLOW_TRACKING_URI` | Defaults to a local sqlite file (`mlflow.db`) |
+| `MLFLOW_TRACKING_URI` | DagsHub-hosted MLflow tracking server |
 | `MLFLOW_EXPERIMENT_NAME` / `MLFLOW_REGISTRY_MODEL_NAME` | MLflow experiment + registry naming |
 | `PROMOTION_MIN_MEAN_IC` / `PROMOTION_MIN_POSITIVE_FOLD_PCT` / `PROMOTION_REGRESSION_TOLERANCE` | Promotion gate thresholds |
 

@@ -23,8 +23,8 @@ def test_build_folds_no_lookahead():
 
     assert len(folds) > 0
     for f in folds:
-        # every training date must be at least EMBARGO_DAYS before train_end
-        assert f.train_idx.max() <= f.train_end - pd.Timedelta(days=config.EMBARGO_DAYS)
+        # every training date must be at least EMBARGO_ENTRIES before train_end
+        assert f.train_idx.max() <= f.train_end - pd.Timedelta(days=config.EMBARGO_ENTRIES)
         # test dates must fall strictly after test_start and up to test_end
         assert f.test_idx.min() > f.test_start
         assert f.test_idx.max() <= f.test_end

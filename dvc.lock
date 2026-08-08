@@ -58,15 +58,15 @@ stages:
     outs:
     - path: models/best_config.json
       hash: md5
-      md5: 7d02b104e38771777c5dc04a4605f17d
+      md5: 717c9d4df16651196795117220724ae2
       size: 1322
     - path: models/cv_metrics.csv
       hash: md5
-      md5: 8e9dbe38cc9187d83416225be9f89268
+      md5: caa4b57db168bdbc374de020d214ba7c
       size: 851
     - path: models/cv_metrics.json
       hash: md5
-      md5: cea93e6829138504f35f0a6ea9da8efc
+      md5: 21c598e7443ab17dace7bd34b5870614
       size: 1771
   fit_final:
     cmd: python -m src.fit_final
@@ -77,12 +77,12 @@ stages:
       size: 721828
     - path: models/best_config.json
       hash: md5
-      md5: 1fb525b130990378c4a53d38b85a0e7f
-      size: 1320
+      md5: 717c9d4df16651196795117220724ae2
+      size: 1322
     - path: src/config.py
       hash: md5
-      md5: 25fa13e5501df4c383b63f930e8a5981
-      size: 6238
+      md5: ceb6d77c29355c14b10176843969487a
+      size: 6241
     - path: src/fit_final.py
       hash: md5
       md5: 8fd86eaf23cf37556525101843aa6784
@@ -102,9 +102,9 @@ stages:
     outs:
     - path: models/model.pkl
       hash: md5
-      md5: 5afba5ab83df8cb95355e37cbe18dc6f
-      size: 490328
+      md5: 9468054bf99558c6f5c08ba05aa4e720
+      size: 110643
     - path: models/model_meta.json
       hash: md5
-      md5: 2ba76d07ef61e9ce11bd2b79c4072b0c
-      size: 1419
+      md5: fb1a9dd5e71584d9efd94b4d918c77d7
+      size: 1421
